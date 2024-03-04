@@ -31,10 +31,10 @@ for files in tqdm(range(len(file_list))):
 
         ## jet_feature shape [N-Jet,5]
         jet_feature = torch.cat((jet_pt,
-                                 jet_eta,
-                                 jet_phi,
-                                 jet_mass,
-                                 jet_btag),dim=1)
+                                jet_eta,
+                                jet_phi,
+                                jet_mass,
+                                jet_btag),dim=1)
 
         
         ## label [other, b_m, q0, q1, b_p, q2, q3]

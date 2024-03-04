@@ -62,7 +62,21 @@ class dataset_v1(PyGDataset):
         ### file num check
         nFiles = len(self.sampleInfo)
         
-        
+        max_pmts = 0        
+        for i, fName in enumerate(self.sampleInfo['fileName']):
+            
+            ### file load and check event num
+            f = torch.load(fName)
+
+            nEvents = len(f)
+
+            self.sampleInfo.loc[i, 'nEvent'] = nEvents
+            for events in range(nEvents):
+                    # print(f[j].x.shape)
+                    if f[events].x.shape[0] > max_pmts:
+                        max_pmts = f[events].x.shape[0]
+
+
         ### Load event contents
         for i, fName in enumerate(self.sampleInfo['fileName']):
             
@@ -73,18 +87,18 @@ class dataset_v1(PyGDataset):
 
             self.sampleInfo.loc[i, 'nEvent'] = nEvents
             
-
+            
 
             feas = []
             labels = []
             masks = []
             label_masks = []
             for events in range(nEvents):
-                if f[events].x.shape[0]<14:
-                    fea = torch.zeros(14,5)
-                    label = torch.zeros(14)
-                    mask = torch.zeros(14,5)
-                    label_mask = torch.zeros(14)
+                if f[events].x.shape[0]<max_pmts:
+                    fea = torch.zeros(max_pmts,5)
+                    label = torch.zeros(max_pmts)
+                    mask = torch.zeros(max_pmts,5)
+                    label_mask = torch.zeros(max_pmts)
                     
                     fea[:f[events].x.shape[0],:] = f[events].x
                     label[:f[events].y.shape[0]] = f[events].y
@@ -96,22 +110,15 @@ class dataset_v1(PyGDataset):
                     masks.append(mask)
                     label_masks.append(label_mask)
                     
-#                     print(fea)
-#                     print(label)
-#                     print(mask)
-#                     print(label_mask)
+
                 else:
                     ## N jet = 14
                     feas.append(f[events].x)
                     labels.append(f[events].y)
-                    masks.append(torch.ones(14,5))
-                    label_masks.append(torch.zeros(14))
+                    masks.append(torch.ones(max_pmts,5))
+                    label_masks.append(torch.zeros(max_pmts))
 
-#                     print(fea)
-#                     print(label)
-#                     print(mask)
-#                     print(label_mask)
-                                 
+
             self.feaList.append(feas)
             self.labelList.append(labels)
             self.maskList.append(masks)
